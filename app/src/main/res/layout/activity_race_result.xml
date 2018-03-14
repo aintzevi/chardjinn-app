@@ -2,6 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.aintzevi.chardjinn.RaceResultActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#123456">
@@ -19,7 +20,7 @@
             android:adjustViewBounds="true"
             android:background="#000000"
             android:scaleType="fitStart"
-            android:src="@drawable/bot_image" />
+            android:src="@drawable/kachel_race_result" />
 
     </LinearLayout>
 </ScrollView>

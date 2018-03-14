@@ -1,14 +1,14 @@
 package com.example.aintzevi.chardjinn;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ImageButton;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -27,6 +27,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Deep-Linking Intent
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if(data!=null) {
+            Log.e(TAG, "" + data.toString()); //Watch out for null pointerdata
+            Log.e(TAG, "" + data.getEncodedPath()); //Watch out for null pointerdata
+
+            if (data.getEncodedPath() != null){
+                switch (data.getEncodedPath()){
+                    case "/raceResults":
+                        Intent intent1 = new Intent(this, RaceResultActivity.class);
+                        startActivity(intent1);
+                        break;
+                    default:
+                        //do nothing
+                        break;
+                }
+            }
+        }
 
 
         // Create adapter to return a fragment for each of the sections
@@ -106,15 +126,7 @@ public class MainActivity extends AppCompatActivity {
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
 
-            ImageButton imageButton = (ImageButton) findViewById(R.id.botImage);
 
-            imageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                }
-            });
 
         }
 
