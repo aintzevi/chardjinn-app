@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import java.util.Locale;
 
@@ -56,30 +58,52 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        mViewPager.setCurrentItem(1, true);
+
 
         /**
          * Buttons
          * in der unteren Leiste
          */
-        /*final ImageButton searchButton =(ImageButton)findViewById(R.id.mainPagerButtonSearch);
-        final ImageButton favouritesButton =(ImageButton)findViewById(R.id.mainPagerButtonFavourites);
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        final ImageView ridesButton =(ImageView)findViewById(R.id.ridesIcon);
+        final ImageView dashboardButton =(ImageView)findViewById(R.id.dashboardIcon);
+        final ImageView leaderboardButton =(ImageView)findViewById(R.id.leaderboardIcon);
+        final ImageView profileButton =(ImageView)findViewById(R.id.profileIcon);
 
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                mViewPager.setCurrentItem(1, true);
-            }
-        });*/
-/*        favouritesButton.setOnClickListener(new View.OnClickListener() {
+        ridesButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
                 mViewPager.setCurrentItem(0, true);
             }
-        });*/
+        });
+        dashboardButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                mViewPager.setCurrentItem(1, true);
+            }
+        });
+        leaderboardButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                mViewPager.setCurrentItem(2, true);
+            }
+        });
+        profileButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                mViewPager.setCurrentItem(3, true);
+            }
+        });
+
 
 
         /**
@@ -138,7 +162,13 @@ public class MainActivity extends AppCompatActivity {
             // below).
             switch (position) {
                 case 0:
+                    return RidesFragment.newInstance(position + 1);
+                case 1:
                     return BottomMenuFragment.newInstance(position + 1);
+                case 2:
+                    return LeaderboardFragment.newInstance(position + 1);
+                case 3:
+                    return ProfileFragment.newInstance(position + 1);
                 default:
                     return BottomMenuFragment.newInstance(position + 1);
             }
@@ -148,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // Show 1 total page.
-            return 1;
+            return 4;
         }
 
         @Override
