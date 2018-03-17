@@ -1,23 +1,33 @@
 package com.example.aintzevi.chardjinn;
 
-import android.app.ActionBar;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ToggleButton;
 
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Action bar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
 
         //Deep-Linking Intent
@@ -56,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
 
         // Create adapter to return a fragment for each of the sections
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -111,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Register for broadcasts when a device is discovered.
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mReceiver, filter);
 
 
         /**
@@ -124,12 +137,12 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        *//*favouritesButton.setBackgroundColor(Color.parseColor("#30312C"));
-                        searchButton.setBackgroundColor(Color.parseColor("#9EA3A9"));*//*
+                        *//**//*favouritesButton.setBackgroundColor(Color.parseColor("#30312C"));
+                        searchButton.setBackgroundColor(Color.parseColor("#9EA3A9"));*//**//*
                         break;
                     case 1:
-*//*                        searchButton.setBackgroundColor(Color.parseColor("#30312C"));
-                        favouritesButton.setBackgroundColor(Color.parseColor("#9EA3A9"));*//*
+                        searchButton.setBackgroundColor(Color.parseColor("#30312C"));
+                        favouritesButton.setBackgroundColor(Color.parseColor("#9EA3A9"));*//**//*
                         break;
                     default:
                         break;
@@ -151,6 +164,24 @@ public class MainActivity extends AppCompatActivity {
         });*/
     }
 
+    // Create a BroadcastReceiver
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                //discovery starts, we can show progress dialog or perform other tasks
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                //discovery finishes, dismiss progress dialog
+            } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                //bluetooth device found
+                BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                System.out.println("Found device " + device.getName());
+            }
+        }
+    };
+
+    /* ------------ Action bar creation ------------ */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -169,14 +200,48 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                 if (mBluetoothAdapter == null) {
                     // Device doesn't support Bluetooth
-                    // TODO Show dialog with the message
+                    // TODO Test if that works
+                    new AlertDialog.Builder(this)
+                            .setTitle("Not compatible")
+                            .setMessage("Your phone does not support Bluetooth")
+                            .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    System.exit(0);
+                                }
+                            })
+                            .show();
                 }
-
+                // If BT is supported but disabled
                 if (!mBluetoothAdapter.isEnabled()) {
+                    // Prompt user to enable BT
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(enableBtIntent, 0);
                 }
-                // TODO Bluetooth data stuff
+                // TODO Check if the user enabled it?
+
+                // Check list of paired devices before attempting to connect
+                Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+                // If list of paired devices is not empty
+                if (pairedDevices.size() > 0) {
+                    // Get the name and address of each paired device
+                    for (BluetoothDevice device : pairedDevices) {
+                        String deviceName = device.getName();
+                        String deviceHardwareAddress = device.getAddress(); // MAC address
+                    }
+                }
+
+                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+                registerReceiver(mReceiver, filter);
+
+                // Start the device discovery
+                mBluetoothAdapter.startDiscovery();
+
                 return true;
 
             default:
@@ -186,14 +251,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    /* ------------ End of Action Bar ------------ */
+
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
-
-
-
         }
 
 
@@ -237,4 +301,14 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+
+        // Don't forget to unregister the ACTION_FOUND receiver.
+        unregisterReceiver(mReceiver);
+    }
+
 }
